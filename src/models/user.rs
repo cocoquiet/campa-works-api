@@ -1,10 +1,7 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 
-use crate::{
-    models::enums::{UserRole, UserStatus},
-    schema::users,
-};
+use crate::{models::enums::UserRole, schema::users};
 
 #[derive(Debug, Queryable, Selectable, Identifiable)]
 #[diesel(table_name = users)]
@@ -16,7 +13,6 @@ pub struct User {
     pub name: String,
 
     pub role: UserRole,
-    pub status: UserStatus,
 
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -29,12 +25,10 @@ pub struct NewUser {
     pub password: String,
     pub name: String,
     pub role: UserRole,
-    pub status: UserStatus,
 }
 
 #[derive(Debug, AsChangeset)]
 #[diesel(table_name = users)]
 pub struct UpdateUser {
     pub name: Option<String>,
-    pub status: Option<UserStatus>,
 }
