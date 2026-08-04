@@ -1,13 +1,11 @@
-use axum::{
-    Router,
-    routing::{delete, get, patch, post},
-};
+use std::sync::Arc;
+
+use axum::{Router, routing::*};
 
 use crate::{
     handler::user_handler::{create_user, delete_user, get_user, get_users, update_user},
     state::app_state::AppState,
 };
-use std::sync::Arc;
 
 pub fn user_router() -> Router<Arc<AppState>> {
     Router::new()

@@ -1,9 +1,6 @@
-use axum::{
-    Router,
-    routing::{delete, get, patch, post},
-};
-
 use std::sync::Arc;
+
+use axum::{Router, routing::*};
 
 use crate::{
     handler::professor_handler::{
