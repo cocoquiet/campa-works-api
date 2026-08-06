@@ -1,5 +1,5 @@
-pub mod classroom_handler;
 pub mod classroom_facility_handler;
+pub mod classroom_handler;
 pub mod course_assignment_handler;
 pub mod course_facility_handler;
 pub mod course_handler;
@@ -12,4 +12,5 @@ pub mod master_course_handler;
 pub mod professor_credit_handler;
 pub mod professor_handler;
 pub mod semester_handler;
+pub mod timetable_handler;
 pub mod user_handler;

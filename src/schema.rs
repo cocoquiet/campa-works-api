@@ -196,6 +196,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    timetable (id) {
+        id -> Int8,
+        assignment_id -> Int8,
+        classroom_id -> Int8,
+        day_of_week -> Int4,
+        start_period -> Int4,
+        end_period -> Int4,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::UserRole;
 
@@ -232,6 +243,8 @@ diesel::joinable!(course_preference_bookmark -> professor (professor_id));
 diesel::joinable!(professor -> users (user_id));
 diesel::joinable!(professor_credit -> professor (professor_id));
 diesel::joinable!(professor_credit -> semester (semester_id));
+diesel::joinable!(timetable -> classroom (classroom_id));
+diesel::joinable!(timetable -> course_assignment (assignment_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     classroom,
@@ -248,5 +261,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     professor,
     professor_credit,
     semester,
+    timetable,
     users,
 );
