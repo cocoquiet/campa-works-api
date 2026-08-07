@@ -4,7 +4,7 @@ use diesel::prelude::*;
 
 use crate::{
     models::{
-        enums::ProfessorPosition,
+        enums::{ProfessorPosition, ProfessorStatus},
         professor::{NewProfessor, Professor, UpdateProfessor},
         user::User,
     },
@@ -40,6 +40,34 @@ impl ProfessorRepository {
             .filter(|value| !value.is_empty())
         {
             query = query.filter(professor::position.eq(ProfessorPosition::from(position)));
+        }
+        if let Some(office) = params
+            .get("office")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(professor::office.ilike(format!("%{}%", office)));
+        }
+        if let Some(tel) = params
+            .get("tel")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(professor::tel.ilike(format!("%{}%", tel)));
+        }
+        if let Some(research_field) = params
+            .get("research_field")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(professor::research_field.ilike(format!("%{}%", research_field)));
+        }
+        if let Some(status) = params
+            .get("status")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(professor::status.eq(ProfessorStatus::from(status)));
         }
 
         if let Some(user_name) = params

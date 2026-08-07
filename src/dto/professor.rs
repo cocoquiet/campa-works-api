@@ -76,3 +76,13 @@ impl From<&str> for ProfessorPosition {
         }
     }
 }
+
+impl From<&str> for ProfessorStatus {
+    fn from(s: &str) -> Self {
+        match s {
+            "ACTIVE" => ProfessorStatus::Active,
+            "INACTIVE" => ProfessorStatus::Inactive,
+            _ => ProfessorStatus::Inactive,
+        }
+    }
+}
