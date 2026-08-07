@@ -4,7 +4,7 @@ use diesel::prelude::*;
 
 use crate::{
     models::{
-        enums::{ProfessorPosition, ProfessorStatus, UserRole},
+        enums::{ProfessorPosition, ProfessorStatus},
         professor::{NewProfessor, Professor, UpdateProfessor},
         user::User,
     },

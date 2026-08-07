@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
 };
 
@@ -33,6 +33,7 @@ pub async fn create_semester(
 
 pub async fn get_semesters(
     State(state): State<Arc<AppState>>,
+    Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<SemesterResponse>>, AppError> {
     let conn = state
         .pool
@@ -41,7 +42,7 @@ pub async fn get_semesters(
         .map_err(|_| AppError::DatabaseError)?;
 
     let semesters = conn
-        .interact(move |conn| SemesterService::get_all(conn))
+        .interact(move |conn| SemesterService::get_all(conn, &params))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

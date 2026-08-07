@@ -1,8 +1,13 @@
+use std::collections::HashMap;
+
 use diesel::prelude::*;
 use diesel::result::QueryResult;
 
 use crate::{
-    models::semester::{NewSemester, Semester, UpdateSemester},
+    models::{
+        enums::SemesterType,
+        semester::{NewSemester, Semester, UpdateSemester},
+    },
     schema::semester::dsl::*,
 };
 
@@ -16,30 +21,39 @@ impl SemesterRepository {
             .get_result(conn)
     }
 
-    pub fn find_all(conn: &mut PgConnection) -> QueryResult<Vec<Semester>> {
-        semester
+    pub fn find_all(
+        conn: &mut PgConnection,
+        params: &HashMap<String, String>,
+    ) -> QueryResult<Vec<Semester>> {
+        let mut query = semester
             .select(Semester::as_select())
             .order((year.desc(), semester_.asc()))
-            .load(conn)
+            .into_boxed();
+
+        if let Some(semester_id) = params.get("id").and_then(|value| value.parse::<i64>().ok()) {
+            query = query.filter(id.eq(semester_id));
+        }
+        if let Some(semester_year) = params
+            .get("year")
+            .and_then(|value| value.parse::<i32>().ok())
+        {
+            query = query.filter(year.eq(semester_year));
+        }
+        if let Some(semester_type) = params
+            .get("semester_")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(semester_.eq(SemesterType::from(semester_type)));
+        }
+
+        query.load(conn)
     }
 
     pub fn find_by_id(conn: &mut PgConnection, semester_id: i64) -> QueryResult<Semester> {
         semester
             .filter(id.eq(semester_id))
             .select(Semester::as_select())
-            .first(conn)
-    }
-
-    pub fn find_by_year_and_semester(
-        conn: &mut PgConnection,
-        target_year: i32,
-        target_semester: crate::models::enums::SemesterType,
-    ) -> QueryResult<Semester> {
-        semester
-            .filter(year.eq(target_year))
-            .filter(semester_.eq(target_semester))
-            .select(Semester::as_select())
-            .into_boxed()
             .first(conn)
     }
 

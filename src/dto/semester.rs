@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 
 use crate::models::{
@@ -36,5 +38,29 @@ impl From<Semester> for SemesterResponse {
             semester_: semester.semester_,
             status: semester.status,
         }
+    }
+}
+
+impl From<&str> for SemesterType {
+    fn from(s: &str) -> Self {
+        match s {
+            "FIRST" => SemesterType::First,
+            "SUMMER" => SemesterType::Summer,
+            "SECOND" => SemesterType::Second,
+            "WINTER" => SemesterType::Winter,
+            _ => panic!("Invalid semester type"),
+        }
+    }
+}
+
+impl Display for SemesterType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            SemesterType::First => "FIRST",
+            SemesterType::Summer => "SUMMER",
+            SemesterType::Second => "SECOND",
+            SemesterType::Winter => "WINTER",
+        };
+        write!(f, "{}", s)
     }
 }
