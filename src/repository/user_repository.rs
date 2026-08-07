@@ -38,7 +38,6 @@ impl UserRepository {
         {
             query = query.filter(email.eq(user_email));
         }
-
         if let Some(user_name) = params
             .get("name")
             .map(|value| value.trim())
@@ -46,7 +45,6 @@ impl UserRepository {
         {
             query = query.filter(name.ilike(format!("%{}%", user_name)));
         }
-
         if let Some(user_role) = params
             .get("role")
             .map(|value| value.trim())

@@ -4,8 +4,11 @@ use diesel::prelude::*;
 
 use crate::{
     models::{
-        enums::{ProfessorPosition, ProfessorStatus, UserRole}, professor::{NewProfessor, Professor, UpdateProfessor}, user::User,
-    }, schema::{professor, users},
+        enums::{ProfessorPosition, ProfessorStatus, UserRole},
+        professor::{NewProfessor, Professor, UpdateProfessor},
+        user::User,
+    },
+    schema::{professor, users},
 };
 
 pub struct ProfessorRepository;
@@ -80,13 +83,6 @@ impl ProfessorRepository {
             .filter(|value| !value.is_empty())
         {
             query = query.filter(users::name.ilike(format!("%{}%", user_name)));
-        }
-        if let Some(user_role) = params
-            .get("user_role")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(users::role.eq(UserRole::from(user_role)));
         }
 
         query.load(conn)
