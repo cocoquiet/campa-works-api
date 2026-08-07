@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use diesel::PgConnection;
 
 use crate::{
@@ -16,7 +18,12 @@ impl MasterCourseService {
         conn: &mut PgConnection,
         request: CreateMasterCourseRequest,
     ) -> Result<MasterCourseResponse, AppError> {
-        if MasterCourseRepository::find_by_course_code(conn, &request.course_code).is_ok() {
+        let query_params =
+            HashMap::from([("course_code".to_string(), request.course_code.clone())]);
+        if !MasterCourseRepository::find_all(conn, &query_params)
+            .unwrap_or_else(|_| Vec::new())
+            .is_empty()
+        {
             return Err(AppError::MasterCourseAlreadyExists);
         }
 
@@ -36,9 +43,12 @@ impl MasterCourseService {
         Ok(course.into())
     }
 
-    pub fn get_all(conn: &mut PgConnection) -> Result<Vec<MasterCourseResponse>, AppError> {
+    pub fn get_all(
+        conn: &mut PgConnection,
+        params: &HashMap<String, String>,
+    ) -> Result<Vec<MasterCourseResponse>, AppError> {
         let courses =
-            MasterCourseRepository::find_all(conn).map_err(|_| AppError::DatabaseError)?;
+            MasterCourseRepository::find_all(conn, params).map_err(|_| AppError::DatabaseError)?;
 
         Ok(courses.into_iter().map(Into::into).collect())
     }
@@ -62,10 +72,12 @@ impl MasterCourseService {
             .map_err(|_| AppError::MasterCourseNotFound)?;
 
         if let Some(ref code) = request.course_code {
-            if let Ok(existing) = MasterCourseRepository::find_by_course_code(conn, code) {
-                if existing.id != course_id {
-                    return Err(AppError::MasterCourseAlreadyExists);
-                }
+            let query_params = HashMap::from([("course_code".to_string(), code.clone())]);
+            if !MasterCourseRepository::find_all(conn, &query_params)
+                .unwrap_or_else(|_| Vec::new())
+                .is_empty()
+            {
+                return Err(AppError::MasterCourseAlreadyExists);
             }
         }
 

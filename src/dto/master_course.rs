@@ -60,3 +60,13 @@ impl From<MasterCourse> for MasterCourseResponse {
         }
     }
 }
+
+impl From<&str> for CourseType {
+    fn from(s: &str) -> Self {
+        match s {
+            "UNDERGRADUATE" => CourseType::Undergraduate,
+            "GRADUATE" => CourseType::Graduate,
+            _ => panic!("Invalid CourseType string: {}", s),
+        }
+    }
+}
