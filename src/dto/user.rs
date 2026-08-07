@@ -36,3 +36,15 @@ impl From<User> for UserResponse {
         }
     }
 }
+
+impl From<&str> for UserRole {
+    fn from(role: &str) -> Self {
+        match role {
+            "ADMIN" => UserRole::Admin,
+            "PROFESSOR" => UserRole::Professor,
+            "ASSISTANT" => UserRole::Assistant,
+            "STAFF" => UserRole::Staff,
+            _ => UserRole::Staff,
+        }
+    }
+}

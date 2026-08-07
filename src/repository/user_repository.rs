@@ -4,9 +4,11 @@ use diesel::prelude::*;
 use diesel::result::QueryResult;
 
 use crate::{
-    models::user::{NewUser, UpdateUser, User},
-    schema::users,
-    schema::users::dsl::*,
+    models::{
+        enums::UserRole,
+        user::{NewUser, UpdateUser, User},
+    },
+    schema::users::{self, dsl::*},
 };
 
 pub struct UserRepository;
@@ -43,6 +45,14 @@ impl UserRepository {
             .filter(|value| !value.is_empty())
         {
             query = query.filter(name.ilike(format!("%{}%", user_name)));
+        }
+
+        if let Some(user_role) = params
+            .get("role")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(role.eq(UserRole::from(user_role)));
         }
 
         query.load(conn)
