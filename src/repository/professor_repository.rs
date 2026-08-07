@@ -4,6 +4,7 @@ use diesel::prelude::*;
 
 use crate::{
     models::{
+        enums::ProfessorPosition,
         professor::{NewProfessor, Professor, UpdateProfessor},
         user::User,
     },
@@ -29,8 +30,16 @@ impl ProfessorRepository {
             .select((Professor::as_select(), User::as_select()))
             .into_boxed();
 
-        if let Some(professor_id) = params.get("id").and_then(|value| value.parse::<i64>().ok()) {
-            query = query.filter(professor::id.eq(professor_id));
+        if let Some(id) = params.get("id").and_then(|value| value.parse::<i64>().ok()) {
+            query = query.filter(professor::id.eq(id));
+        }
+
+        if let Some(position) = params
+            .get("position")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(professor::position.eq(ProfessorPosition::from(position)));
         }
 
         if let Some(user_name) = params
