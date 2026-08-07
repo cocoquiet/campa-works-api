@@ -24,7 +24,10 @@ impl SemesterService {
             ("semester_".to_string(), request.semester_.to_string()),
         ]);
 
-        if SemesterRepository::find_all(conn, &query_params).is_ok() {
+        if !SemesterRepository::find_all(conn, &query_params)
+            .unwrap_or_else(|_| Vec::new())
+            .is_empty()
+        {
             return Err(AppError::SemesterAlreadyExists);
         }
 
