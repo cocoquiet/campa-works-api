@@ -51,7 +51,7 @@ pub async fn get_users(
 
 pub async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(user_id): Path<i64>,
 ) -> Result<Json<UserResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_user(
         .map_err(|_| AppError::DatabaseError)?;
 
     let user = conn
-        .interact(move |conn| UserService::get_by_id(conn, id))
+        .interact(move |conn| UserService::get_by_id(conn, user_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_user(
 
 pub async fn update_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(user_id): Path<i64>,
     Json(request): Json<UpdateUserRequest>,
 ) -> Result<Json<UserResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_user(
         .map_err(|_| AppError::DatabaseError)?;
 
     let user = conn
-        .interact(move |conn| UserService::update(conn, id, request))
+        .interact(move |conn| UserService::update(conn, user_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_user(
 
 pub async fn delete_user(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(user_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_user(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| UserService::delete(conn, id))
+    conn.interact(move |conn| UserService::delete(conn, user_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

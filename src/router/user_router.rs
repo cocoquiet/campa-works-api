@@ -11,7 +11,7 @@ pub fn user_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_user).get(get_users))
         .route(
-            "/{id}",
+            "/{user_id}",
             get(get_user).patch(update_user).delete(delete_user),
         )
 }
