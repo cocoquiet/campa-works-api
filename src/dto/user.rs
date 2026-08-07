@@ -12,7 +12,10 @@ pub struct CreateUserRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserRequest {
+    pub email: Option<String>,
     pub name: Option<String>,
+    pub password: Option<String>,
+    pub role: Option<UserRole>,
 }
 
 #[derive(Debug, Serialize)]
