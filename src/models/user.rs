@@ -30,5 +30,8 @@ pub struct NewUser {
 #[derive(Debug, AsChangeset)]
 #[diesel(table_name = users)]
 pub struct UpdateUser {
+    pub email: Option<String>,
     pub name: Option<String>,
+    pub password: Option<String>,
+    pub role: Option<UserRole>,
 }
