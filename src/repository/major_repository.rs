@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use diesel::prelude::*;
 
 use crate::{
@@ -15,20 +17,26 @@ impl MajorRepository {
             .get_result(conn)
     }
 
-    pub fn find_all(conn: &mut PgConnection) -> QueryResult<Vec<Major>> {
-        major.select(Major::as_select()).load(conn)
+    pub fn find_all(
+        conn: &mut PgConnection,
+        params: &HashMap<String, String>,
+    ) -> QueryResult<Vec<Major>> {
+        let mut query = major.select(Major::as_select()).into_boxed();
+
+        if let Some(name_) = params
+            .get("name")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(name.ilike(format!("%{}%", name_)));
+        }
+
+        query.load(conn)
     }
 
     pub fn find_by_id(conn: &mut PgConnection, major_id: i64) -> QueryResult<Major> {
         major
             .filter(id.eq(major_id))
-            .select(Major::as_select())
-            .first(conn)
-    }
-
-    pub fn find_by_name(conn: &mut PgConnection, major_name: &str) -> QueryResult<Major> {
-        major
-            .filter(name.eq(major_name))
             .select(Major::as_select())
             .first(conn)
     }

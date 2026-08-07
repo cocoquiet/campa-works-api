@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use diesel::PgConnection;
 
 use crate::{
@@ -14,7 +16,8 @@ impl MajorService {
         conn: &mut PgConnection,
         request: CreateMajorRequest,
     ) -> Result<MajorResponse, AppError> {
-        if MajorRepository::find_by_name(conn, &request.name).is_ok() {
+        let query_params = HashMap::from([("name".into(), request.name.clone())]);
+        if MajorRepository::find_all(conn, &query_params).is_ok() {
             return Err(AppError::MajorAlreadyExists);
         }
 
@@ -26,8 +29,12 @@ impl MajorService {
         Ok(major.into())
     }
 
-    pub fn get_all(conn: &mut PgConnection) -> Result<Vec<MajorResponse>, AppError> {
-        let majors = MajorRepository::find_all(conn).map_err(|_| AppError::DatabaseError)?;
+    pub fn get_all(
+        conn: &mut PgConnection,
+        params: &HashMap<String, String>,
+    ) -> Result<Vec<MajorResponse>, AppError> {
+        let majors =
+            MajorRepository::find_all(conn, params).map_err(|_| AppError::DatabaseError)?;
 
         Ok(majors.into_iter().map(Into::into).collect())
     }
@@ -45,8 +52,9 @@ impl MajorService {
         request: UpdateMajorRequest,
     ) -> Result<MajorResponse, AppError> {
         if let Some(ref name) = request.name {
-            if let Ok(existing) = MajorRepository::find_by_name(conn, name) {
-                if existing.id != major_id {
+            let query_params = HashMap::from([("name".into(), name.clone())]);
+            if let Ok(existing) = MajorRepository::find_all(conn, &query_params) {
+                if existing[0].id != major_id {
                     return Err(AppError::MajorAlreadyExists);
                 }
             }
