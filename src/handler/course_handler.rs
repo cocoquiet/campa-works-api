@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use axum::{
     Json,
@@ -33,7 +33,7 @@ pub async fn create_course(
 
 pub async fn get_courses(
     State(state): State<Arc<AppState>>,
-    Query(params): Query<HashMap<String, String>>,
+    Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<CourseResponse>>, AppError> {
     let conn = state
         .pool
