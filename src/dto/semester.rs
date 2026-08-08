@@ -17,6 +17,7 @@ pub struct CreateSemesterRequest {
 pub struct UpdateSemesterRequest {
     pub year: Option<i32>,
     pub semester_: Option<SemesterType>,
+
     pub status: Option<SemesterStatus>,
 }
 
@@ -34,8 +35,10 @@ impl From<Semester> for SemesterResponse {
     fn from(semester: Semester) -> Self {
         Self {
             id: semester.id,
+
             year: semester.year,
             semester_: semester.semester_,
+
             status: semester.status,
         }
     }

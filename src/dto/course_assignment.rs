@@ -20,7 +20,6 @@ pub struct CourseAssignmentResponse {
     pub id: i64,
 
     pub course: CourseResponse,
-
     pub professor: ProfessorResponse,
 
     pub created_at: NaiveDateTime,
@@ -52,7 +51,6 @@ impl
             id: course_assignment.id,
 
             course: CourseResponse::from((course, master_course, semester, major)),
-
             professor: ProfessorResponse::from((professor, user)),
 
             created_at: course_assignment.created_at,

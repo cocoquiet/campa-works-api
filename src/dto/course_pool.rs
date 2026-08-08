@@ -19,7 +19,6 @@ pub struct CoursePoolResponse {
     pub id: i64,
 
     pub professor: ProfessorResponse,
-
     pub master_course: MasterCourseResponse,
 
     pub created_at: NaiveDateTime,
@@ -33,7 +32,6 @@ impl From<(CoursePool, Professor, User, MasterCourse)> for CoursePoolResponse {
             id: course_pool.id,
 
             professor: ProfessorResponse::from((professor, user)),
-
             master_course: MasterCourseResponse::from(master_course),
 
             created_at: course_pool.created_at,

@@ -15,6 +15,7 @@ pub struct UpdateMajorRequest {
 #[derive(Debug, Serialize)]
 pub struct MajorResponse {
     pub id: i64,
+
     pub name: String,
 }
 
@@ -22,6 +23,7 @@ impl From<Major> for MajorResponse {
     fn from(major: Major) -> Self {
         Self {
             id: major.id,
+
             name: major.name,
         }
     }

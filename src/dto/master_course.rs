@@ -50,12 +50,16 @@ impl From<MasterCourse> for MasterCourseResponse {
     fn from(course: MasterCourse) -> Self {
         Self {
             id: course.id,
+
             course_code: course.course_code,
             name: course.name,
+
             credit: course.credit,
             lecture: course.lecture,
             practice: course.practice,
+
             course_type: course.course_type,
+
             is_core: course.is_core,
         }
     }
