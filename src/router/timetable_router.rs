@@ -13,7 +13,7 @@ pub fn timetable_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_timetable).get(get_timetables))
         .route(
-            "/{id}",
+            "/{timetable_id}",
             get(get_timetable)
                 .patch(update_timetable)
                 .delete(delete_timetable),

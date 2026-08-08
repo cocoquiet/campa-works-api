@@ -51,7 +51,7 @@ pub async fn get_course_assignments(
 
 pub async fn get_course_assignment(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_assignment_id): Path<i64>,
 ) -> Result<Json<CourseAssignmentResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_course_assignment(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course_assignment = conn
-        .interact(move |conn| CourseAssignmentService::get_by_id(conn, id))
+        .interact(move |conn| CourseAssignmentService::get_by_id(conn, course_assignment_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_course_assignment(
 
 pub async fn delete_course_assignment(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_assignment_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -77,7 +77,7 @@ pub async fn delete_course_assignment(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| CourseAssignmentService::delete(conn, id))
+    conn.interact(move |conn| CourseAssignmentService::delete(conn, course_assignment_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

@@ -17,7 +17,7 @@ pub fn course_preference_bookmark_router() -> Router<Arc<AppState>> {
             post(create_course_preference_bookmark).get(get_course_preference_bookmarks),
         )
         .route(
-            "/{id}",
+            "/{course_preference_bookmark_id}",
             get(get_course_preference_bookmark).delete(delete_course_preference_bookmark),
         )
 }

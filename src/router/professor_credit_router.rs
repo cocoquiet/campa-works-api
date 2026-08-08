@@ -17,7 +17,7 @@ pub fn professor_credit_router() -> Router<Arc<AppState>> {
             post(create_professor_credit).get(get_professor_credits),
         )
         .route(
-            "/{id}",
+            "/{professor_credit_id}",
             get(get_professor_credit)
                 .patch(update_professor_credit)
                 .delete(delete_professor_credit),

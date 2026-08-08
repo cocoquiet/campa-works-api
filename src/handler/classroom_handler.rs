@@ -51,7 +51,7 @@ pub async fn get_classrooms(
 
 pub async fn get_classroom(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(classroom_id): Path<i64>,
 ) -> Result<Json<ClassroomResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_classroom(
         .map_err(|_| AppError::DatabaseError)?;
 
     let classroom = conn
-        .interact(move |conn| ClassroomService::get_by_id(conn, id))
+        .interact(move |conn| ClassroomService::get_by_id(conn, classroom_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_classroom(
 
 pub async fn update_classroom(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(classroom_id): Path<i64>,
     Json(request): Json<UpdateClassroomRequest>,
 ) -> Result<Json<ClassroomResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_classroom(
         .map_err(|_| AppError::DatabaseError)?;
 
     let classroom = conn
-        .interact(move |conn| ClassroomService::update(conn, id, request))
+        .interact(move |conn| ClassroomService::update(conn, classroom_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_classroom(
 
 pub async fn delete_classroom(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(classroom_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_classroom(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| ClassroomService::delete(conn, id))
+    conn.interact(move |conn| ClassroomService::delete(conn, classroom_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

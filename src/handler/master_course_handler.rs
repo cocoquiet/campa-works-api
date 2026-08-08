@@ -53,7 +53,7 @@ pub async fn get_master_courses(
 
 pub async fn get_master_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(master_course_id): Path<i64>,
 ) -> Result<Json<MasterCourseResponse>, AppError> {
     let conn = state
         .pool
@@ -62,7 +62,7 @@ pub async fn get_master_course(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course = conn
-        .interact(move |conn| MasterCourseService::get_by_id(conn, id))
+        .interact(move |conn| MasterCourseService::get_by_id(conn, master_course_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -71,7 +71,7 @@ pub async fn get_master_course(
 
 pub async fn update_master_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(master_course_id): Path<i64>,
     Json(request): Json<UpdateMasterCourseRequest>,
 ) -> Result<Json<MasterCourseResponse>, AppError> {
     let conn = state
@@ -81,7 +81,7 @@ pub async fn update_master_course(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course = conn
-        .interact(move |conn| MasterCourseService::update(conn, id, request))
+        .interact(move |conn| MasterCourseService::update(conn, master_course_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -90,7 +90,7 @@ pub async fn update_master_course(
 
 pub async fn delete_master_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(master_course_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -98,7 +98,7 @@ pub async fn delete_master_course(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| MasterCourseService::delete(conn, id))
+    conn.interact(move |conn| MasterCourseService::delete(conn, master_course_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

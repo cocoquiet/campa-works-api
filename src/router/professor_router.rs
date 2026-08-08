@@ -13,7 +13,7 @@ pub fn professor_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_professor).get(get_professors))
         .route(
-            "/{id}",
+            "/{professor_id}",
             get(get_professor)
                 .patch(update_professor)
                 .delete(delete_professor),

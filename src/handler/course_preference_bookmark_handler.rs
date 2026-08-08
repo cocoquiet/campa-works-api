@@ -53,7 +53,7 @@ pub async fn get_course_preference_bookmarks(
 
 pub async fn get_course_preference_bookmark(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_preference_bookmark_id): Path<i64>,
 ) -> Result<Json<CoursePreferenceBookmarkResponse>, AppError> {
     let conn = state
         .pool
@@ -62,7 +62,9 @@ pub async fn get_course_preference_bookmark(
         .map_err(|_| AppError::DatabaseError)?;
 
     let bookmark = conn
-        .interact(move |conn| CoursePreferenceBookmarkService::get_by_id(conn, id))
+        .interact(move |conn| {
+            CoursePreferenceBookmarkService::get_by_id(conn, course_preference_bookmark_id)
+        })
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -71,7 +73,7 @@ pub async fn get_course_preference_bookmark(
 
 pub async fn delete_course_preference_bookmark(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_preference_bookmark_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -79,9 +81,11 @@ pub async fn delete_course_preference_bookmark(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| CoursePreferenceBookmarkService::delete(conn, id))
-        .await
-        .map_err(|_| AppError::DatabaseError)??;
+    conn.interact(move |conn| {
+        CoursePreferenceBookmarkService::delete(conn, course_preference_bookmark_id)
+    })
+    .await
+    .map_err(|_| AppError::DatabaseError)??;
 
     Ok(StatusCode::NO_CONTENT)
 }

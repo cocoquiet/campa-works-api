@@ -51,7 +51,7 @@ pub async fn get_majors(
 
 pub async fn get_major(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(major_id): Path<i64>,
 ) -> Result<Json<MajorResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_major(
         .map_err(|_| AppError::DatabaseError)?;
 
     let major = conn
-        .interact(move |conn| MajorService::get_by_id(conn, id))
+        .interact(move |conn| MajorService::get_by_id(conn, major_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_major(
 
 pub async fn update_major(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(major_id): Path<i64>,
     Json(request): Json<UpdateMajorRequest>,
 ) -> Result<Json<MajorResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_major(
         .map_err(|_| AppError::DatabaseError)?;
 
     let major = conn
-        .interact(move |conn| MajorService::update(conn, id, request))
+        .interact(move |conn| MajorService::update(conn, major_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_major(
 
 pub async fn delete_major(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(major_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_major(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| MajorService::delete(conn, id))
+    conn.interact(move |conn| MajorService::delete(conn, major_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

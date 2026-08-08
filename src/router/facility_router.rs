@@ -13,7 +13,7 @@ pub fn facility_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_facility).get(get_facilities))
         .route(
-            "/{id}",
+            "/{facility_id}",
             get(get_facility)
                 .patch(update_facility)
                 .delete(delete_facility),

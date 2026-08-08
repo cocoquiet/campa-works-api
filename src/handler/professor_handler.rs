@@ -51,7 +51,7 @@ pub async fn get_professors(
 
 pub async fn get_professor(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_id): Path<i64>,
 ) -> Result<Json<ProfessorResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_professor(
         .map_err(|_| AppError::DatabaseError)?;
 
     let professor = conn
-        .interact(move |conn| ProfessorService::get_by_id(conn, id))
+        .interact(move |conn| ProfessorService::get_by_id(conn, professor_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_professor(
 
 pub async fn update_professor(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_id): Path<i64>,
     Json(request): Json<UpdateProfessorRequest>,
 ) -> Result<Json<ProfessorResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_professor(
         .map_err(|_| AppError::DatabaseError)?;
 
     let professor = conn
-        .interact(move |conn| ProfessorService::update(conn, id, request))
+        .interact(move |conn| ProfessorService::update(conn, professor_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_professor(
 
 pub async fn delete_professor(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_professor(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| ProfessorService::delete(conn, id))
+    conn.interact(move |conn| ProfessorService::delete(conn, professor_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

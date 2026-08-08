@@ -12,5 +12,8 @@ use crate::{
 pub fn course_pool_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_course_pool).get(get_course_pools))
-        .route("/{id}", get(get_course_pool).delete(delete_course_pool))
+        .route(
+            "/{course_pool_id}",
+            get(get_course_pool).delete(delete_course_pool),
+        )
 }

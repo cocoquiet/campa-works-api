@@ -17,7 +17,7 @@ pub fn course_preference_router() -> Router<Arc<AppState>> {
             post(create_course_preference).get(get_course_preferences),
         )
         .route(
-            "/{id}",
+            "/{course_preference_id}",
             get(get_course_preference)
                 .patch(update_course_preference)
                 .delete(delete_course_preference),
