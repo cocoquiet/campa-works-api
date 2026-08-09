@@ -51,7 +51,7 @@ pub async fn get_classroom_facilities(
 
 pub async fn get_classroom_facility(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(classroom_facility_id): Path<i64>,
 ) -> Result<Json<ClassroomFacilityResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_classroom_facility(
         .map_err(|_| AppError::DatabaseError)?;
 
     let classroom_facility = conn
-        .interact(move |conn| ClassroomFacilityService::get_by_id(conn, id))
+        .interact(move |conn| ClassroomFacilityService::get_by_id(conn, classroom_facility_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_classroom_facility(
 
 pub async fn delete_classroom_facility(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(classroom_facility_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -77,7 +77,7 @@ pub async fn delete_classroom_facility(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| ClassroomFacilityService::delete(conn, id))
+    conn.interact(move |conn| ClassroomFacilityService::delete(conn, classroom_facility_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

@@ -13,7 +13,7 @@ pub fn classroom_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_classroom).get(get_classrooms))
         .route(
-            "/{id}",
+            "/{classroom_id}",
             get(get_classroom)
                 .patch(update_classroom)
                 .delete(delete_classroom),

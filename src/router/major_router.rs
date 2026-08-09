@@ -11,7 +11,7 @@ pub fn major_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_major).get(get_majors))
         .route(
-            "/{id}",
+            "/{major_id}",
             get(get_major).patch(update_major).delete(delete_major),
         )
 }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
 };
 
@@ -33,6 +33,7 @@ pub async fn create_semester(
 
 pub async fn get_semesters(
     State(state): State<Arc<AppState>>,
+    Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<SemesterResponse>>, AppError> {
     let conn = state
         .pool
@@ -41,7 +42,7 @@ pub async fn get_semesters(
         .map_err(|_| AppError::DatabaseError)?;
 
     let semesters = conn
-        .interact(move |conn| SemesterService::get_all(conn))
+        .interact(move |conn| SemesterService::get_all(conn, &params))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -50,7 +51,7 @@ pub async fn get_semesters(
 
 pub async fn get_semester(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(semester_id): Path<i64>,
 ) -> Result<Json<SemesterResponse>, AppError> {
     let conn = state
         .pool
@@ -59,7 +60,7 @@ pub async fn get_semester(
         .map_err(|_| AppError::DatabaseError)?;
 
     let semester = conn
-        .interact(move |conn| SemesterService::get_by_id(conn, id))
+        .interact(move |conn| SemesterService::get_by_id(conn, semester_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -68,7 +69,7 @@ pub async fn get_semester(
 
 pub async fn update_semester(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(semester_id): Path<i64>,
     Json(request): Json<UpdateSemesterRequest>,
 ) -> Result<Json<SemesterResponse>, AppError> {
     let conn = state
@@ -78,7 +79,7 @@ pub async fn update_semester(
         .map_err(|_| AppError::DatabaseError)?;
 
     let semester = conn
-        .interact(move |conn| SemesterService::update(conn, id, request))
+        .interact(move |conn| SemesterService::update(conn, semester_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -87,7 +88,7 @@ pub async fn update_semester(
 
 pub async fn delete_semester(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(semester_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -95,7 +96,7 @@ pub async fn delete_semester(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| SemesterService::delete(conn, id))
+    conn.interact(move |conn| SemesterService::delete(conn, semester_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

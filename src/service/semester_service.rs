@@ -1,9 +1,14 @@
+use std::collections::HashMap;
+
 use diesel::PgConnection;
 
 use crate::{
     dto::semester::{CreateSemesterRequest, SemesterResponse, UpdateSemesterRequest},
     error::app_error::AppError,
-    models::semester::{NewSemester, UpdateSemester},
+    models::{
+        enums::SemesterStatus,
+        semester::{NewSemester, UpdateSemester},
+    },
     repository::semester_repository::SemesterRepository,
 };
 
@@ -14,8 +19,14 @@ impl SemesterService {
         conn: &mut PgConnection,
         request: CreateSemesterRequest,
     ) -> Result<SemesterResponse, AppError> {
-        if SemesterRepository::find_by_year_and_semester(conn, request.year, request.semester_)
-            .is_ok()
+        let query_params = HashMap::from([
+            ("year".to_string(), request.year.to_string()),
+            ("semester_".to_string(), request.semester_.to_string()),
+        ]);
+
+        if !SemesterRepository::find_all(conn, &query_params)
+            .unwrap_or_else(|_| Vec::new())
+            .is_empty()
         {
             return Err(AppError::SemesterAlreadyExists);
         }
@@ -23,7 +34,7 @@ impl SemesterService {
         let new_semester = NewSemester {
             year: request.year,
             semester_: request.semester_,
-            status: crate::models::enums::SemesterStatus::Open,
+            status: SemesterStatus::Open,
         };
 
         let semester =
@@ -32,8 +43,12 @@ impl SemesterService {
         Ok(semester.into())
     }
 
-    pub fn get_all(conn: &mut PgConnection) -> Result<Vec<SemesterResponse>, AppError> {
-        let semesters = SemesterRepository::find_all(conn).map_err(|_| AppError::DatabaseError)?;
+    pub fn get_all(
+        conn: &mut PgConnection,
+        params: &HashMap<String, String>,
+    ) -> Result<Vec<SemesterResponse>, AppError> {
+        let semesters =
+            SemesterRepository::find_all(conn, params).map_err(|_| AppError::DatabaseError)?;
 
         Ok(semesters.into_iter().map(Into::into).collect())
     }

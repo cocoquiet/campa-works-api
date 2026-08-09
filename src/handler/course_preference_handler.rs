@@ -53,7 +53,7 @@ pub async fn get_course_preferences(
 
 pub async fn get_course_preference(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_preference_id): Path<i64>,
 ) -> Result<Json<CoursePreferenceResponse>, AppError> {
     let conn = state
         .pool
@@ -62,7 +62,7 @@ pub async fn get_course_preference(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course_preference = conn
-        .interact(move |conn| CoursePreferenceService::get_by_id(conn, id))
+        .interact(move |conn| CoursePreferenceService::get_by_id(conn, course_preference_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -71,7 +71,7 @@ pub async fn get_course_preference(
 
 pub async fn update_course_preference(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_preference_id): Path<i64>,
     Json(request): Json<UpdateCoursePreferenceRequest>,
 ) -> Result<Json<CoursePreferenceResponse>, AppError> {
     let conn = state
@@ -81,7 +81,7 @@ pub async fn update_course_preference(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course_preference = conn
-        .interact(move |conn| CoursePreferenceService::update(conn, id, request))
+        .interact(move |conn| CoursePreferenceService::update(conn, course_preference_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -90,7 +90,7 @@ pub async fn update_course_preference(
 
 pub async fn delete_course_preference(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_preference_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -98,7 +98,7 @@ pub async fn delete_course_preference(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| CoursePreferenceService::delete(conn, id))
+    conn.interact(move |conn| CoursePreferenceService::delete(conn, course_preference_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

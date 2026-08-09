@@ -63,3 +63,26 @@ impl From<(Professor, User)> for ProfessorResponse {
         }
     }
 }
+
+impl From<&str> for ProfessorPosition {
+    fn from(s: &str) -> Self {
+        match s {
+            "PROFESSOR" => ProfessorPosition::Professor,
+            "INVITED" => ProfessorPosition::Invited,
+            "CONCURRENT" => ProfessorPosition::Concurrent,
+            "VISITING" => ProfessorPosition::Visiting,
+            "EMERITUS" => ProfessorPosition::Emeritus,
+            _ => ProfessorPosition::Emeritus,
+        }
+    }
+}
+
+impl From<&str> for ProfessorStatus {
+    fn from(s: &str) -> Self {
+        match s {
+            "ACTIVE" => ProfessorStatus::Active,
+            "INACTIVE" => ProfessorStatus::Inactive,
+            _ => ProfessorStatus::Inactive,
+        }
+    }
+}

@@ -13,7 +13,7 @@ pub fn course_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_course).get(get_courses))
         .route(
-            "/{id}",
+            "/{course_id}",
             get(get_course).patch(update_course).delete(delete_course),
         )
 }

@@ -17,7 +17,7 @@ pub fn classroom_facility_router() -> Router<Arc<AppState>> {
             post(create_classroom_facility).get(get_classroom_facilities),
         )
         .route(
-            "/{id}",
+            "/{classroom_facility_id}",
             get(get_classroom_facility).delete(delete_classroom_facility),
         )
 }

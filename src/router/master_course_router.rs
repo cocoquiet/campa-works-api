@@ -14,7 +14,7 @@ pub fn master_course_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(create_master_course).get(get_master_courses))
         .route(
-            "/{id}",
+            "/{master_course_id}",
             get(get_master_course)
                 .patch(update_master_course)
                 .delete(delete_master_course),

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use axum::{
     Json,
@@ -33,7 +33,7 @@ pub async fn create_course(
 
 pub async fn get_courses(
     State(state): State<Arc<AppState>>,
-    Query(params): Query<HashMap<String, String>>,
+    Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<CourseResponse>>, AppError> {
     let conn = state
         .pool
@@ -51,7 +51,7 @@ pub async fn get_courses(
 
 pub async fn get_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_id): Path<i64>,
 ) -> Result<Json<CourseResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_course(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course = conn
-        .interact(move |conn| CourseService::get_by_id(conn, id))
+        .interact(move |conn| CourseService::get_by_id(conn, course_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_course(
 
 pub async fn update_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_id): Path<i64>,
     Json(request): Json<UpdateCourseRequest>,
 ) -> Result<Json<CourseResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_course(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course = conn
-        .interact(move |conn| CourseService::update(conn, id, request))
+        .interact(move |conn| CourseService::update(conn, course_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_course(
 
 pub async fn delete_course(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_course(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| CourseService::delete(conn, id))
+    conn.interact(move |conn| CourseService::delete(conn, course_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

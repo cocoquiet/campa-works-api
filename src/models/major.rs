@@ -6,6 +6,7 @@ use crate::schema::major;
 #[diesel(table_name = major)]
 pub struct Major {
     pub id: i64,
+
     pub name: String,
 }
 

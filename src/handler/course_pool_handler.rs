@@ -51,7 +51,7 @@ pub async fn get_course_pools(
 
 pub async fn get_course_pool(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_pool_id): Path<i64>,
 ) -> Result<Json<CoursePoolResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_course_pool(
         .map_err(|_| AppError::DatabaseError)?;
 
     let course_pool = conn
-        .interact(move |conn| CoursePoolService::get_by_id(conn, id))
+        .interact(move |conn| CoursePoolService::get_by_id(conn, course_pool_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_course_pool(
 
 pub async fn delete_course_pool(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(course_pool_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -77,7 +77,7 @@ pub async fn delete_course_pool(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| CoursePoolService::delete(conn, id))
+    conn.interact(move |conn| CoursePoolService::delete(conn, course_pool_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

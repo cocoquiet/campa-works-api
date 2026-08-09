@@ -51,7 +51,7 @@ pub async fn get_facilities(
 
 pub async fn get_facility(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(facility_id): Path<i64>,
 ) -> Result<Json<FacilityResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_facility(
         .map_err(|_| AppError::DatabaseError)?;
 
     let facility = conn
-        .interact(move |conn| FacilityService::get_by_id(conn, id))
+        .interact(move |conn| FacilityService::get_by_id(conn, facility_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_facility(
 
 pub async fn update_facility(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(facility_id): Path<i64>,
     Json(request): Json<UpdateFacilityRequest>,
 ) -> Result<Json<FacilityResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_facility(
         .map_err(|_| AppError::DatabaseError)?;
 
     let facility = conn
-        .interact(move |conn| FacilityService::update(conn, id, request))
+        .interact(move |conn| FacilityService::update(conn, facility_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_facility(
 
 pub async fn delete_facility(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(facility_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_facility(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| FacilityService::delete(conn, id))
+    conn.interact(move |conn| FacilityService::delete(conn, facility_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

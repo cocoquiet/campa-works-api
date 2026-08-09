@@ -24,11 +24,16 @@ pub struct NewUser {
     pub email: String,
     pub password: String,
     pub name: String,
+
     pub role: UserRole,
 }
 
 #[derive(Debug, AsChangeset)]
 #[diesel(table_name = users)]
 pub struct UpdateUser {
+    pub email: Option<String>,
+    pub password: Option<String>,
     pub name: Option<String>,
+
+    pub role: Option<UserRole>,
 }

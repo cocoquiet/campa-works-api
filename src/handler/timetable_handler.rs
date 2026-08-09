@@ -51,7 +51,7 @@ pub async fn get_timetables(
 
 pub async fn get_timetable(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(timetable_id): Path<i64>,
 ) -> Result<Json<TimetableResponse>, AppError> {
     let conn = state
         .pool
@@ -60,7 +60,7 @@ pub async fn get_timetable(
         .map_err(|_| AppError::DatabaseError)?;
 
     let timetable = conn
-        .interact(move |conn| TimetableService::get_by_id(conn, id))
+        .interact(move |conn| TimetableService::get_by_id(conn, timetable_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -69,7 +69,7 @@ pub async fn get_timetable(
 
 pub async fn update_timetable(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(timetable_id): Path<i64>,
     Json(request): Json<UpdateTimetableRequest>,
 ) -> Result<Json<TimetableResponse>, AppError> {
     let conn = state
@@ -79,7 +79,7 @@ pub async fn update_timetable(
         .map_err(|_| AppError::DatabaseError)?;
 
     let timetable = conn
-        .interact(move |conn| TimetableService::update(conn, id, request))
+        .interact(move |conn| TimetableService::update(conn, timetable_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -88,7 +88,7 @@ pub async fn update_timetable(
 
 pub async fn delete_timetable(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(timetable_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -96,7 +96,7 @@ pub async fn delete_timetable(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| TimetableService::delete(conn, id))
+    conn.interact(move |conn| TimetableService::delete(conn, timetable_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 

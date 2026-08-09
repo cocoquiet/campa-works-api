@@ -17,7 +17,7 @@ pub fn course_assignment_router() -> Router<Arc<AppState>> {
             post(create_course_assignment).get(get_course_assignments),
         )
         .route(
-            "/{id}",
+            "/{course_assignment_id}",
             get(get_course_assignment).delete(delete_course_assignment),
         )
 }

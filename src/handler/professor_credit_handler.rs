@@ -53,7 +53,7 @@ pub async fn get_professor_credits(
 
 pub async fn get_professor_credit(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_credit_id): Path<i64>,
 ) -> Result<Json<ProfessorCreditResponse>, AppError> {
     let conn = state
         .pool
@@ -62,7 +62,7 @@ pub async fn get_professor_credit(
         .map_err(|_| AppError::DatabaseError)?;
 
     let professor_credit = conn
-        .interact(move |conn| ProfessorCreditService::get_by_id(conn, id))
+        .interact(move |conn| ProfessorCreditService::get_by_id(conn, professor_credit_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -71,7 +71,7 @@ pub async fn get_professor_credit(
 
 pub async fn update_professor_credit(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_credit_id): Path<i64>,
     Json(request): Json<UpdateProfessorCreditRequest>,
 ) -> Result<Json<ProfessorCreditResponse>, AppError> {
     let conn = state
@@ -81,7 +81,7 @@ pub async fn update_professor_credit(
         .map_err(|_| AppError::DatabaseError)?;
 
     let professor_credit = conn
-        .interact(move |conn| ProfessorCreditService::update(conn, id, request))
+        .interact(move |conn| ProfessorCreditService::update(conn, professor_credit_id, request))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
@@ -90,7 +90,7 @@ pub async fn update_professor_credit(
 
 pub async fn delete_professor_credit(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i64>,
+    Path(professor_credit_id): Path<i64>,
 ) -> Result<StatusCode, AppError> {
     let conn = state
         .pool
@@ -98,7 +98,7 @@ pub async fn delete_professor_credit(
         .await
         .map_err(|_| AppError::DatabaseError)?;
 
-    conn.interact(move |conn| ProfessorCreditService::delete(conn, id))
+    conn.interact(move |conn| ProfessorCreditService::delete(conn, professor_credit_id))
         .await
         .map_err(|_| AppError::DatabaseError)??;
 
