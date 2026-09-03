@@ -25,6 +25,14 @@ pub enum AppError {
     MajorNotFound,
     #[error("Major already exists")]
     MajorAlreadyExists,
+    #[error("Curriculum not found")]
+    CurriculumNotFound,
+    #[error("Curriculum already exists")]
+    CurriculumAlreadyExists,
+    #[error("Course curriculum not found")]
+    CourseCurriculumNotFound,
+    #[error("Course curriculum already exists")]
+    CourseCurriculumAlreadyExists,
     #[error("Master course not found")]
     MasterCourseNotFound,
     #[error("Master course already exists")]
@@ -45,10 +53,10 @@ pub enum AppError {
     CourseAssignmentAlreadyExists,
     #[error("Course assignment not found")]
     CourseAssignmentNotFound,
-    #[error("Professor credit already exists")]
-    ProfessorCreditAlreadyExists,
-    #[error("Professor credit not found")]
-    ProfessorCreditNotFound,
+    #[error("Professor quota already exists")]
+    ProfessorQuotaAlreadyExists,
+    #[error("Professor quota not found")]
+    ProfessorQuotaNotFound,
     #[error("Course preference bookmark already exists")]
     CoursePreferenceBookmarkAlreadyExists,
     #[error("Course preference bookmark not found")]
@@ -94,18 +102,22 @@ impl IntoResponse for AppError {
             AppError::SemesterAlreadyExists => StatusCode::CONFLICT,
             AppError::MajorNotFound => StatusCode::NOT_FOUND,
             AppError::MajorAlreadyExists => StatusCode::CONFLICT,
+            AppError::CurriculumNotFound => StatusCode::NOT_FOUND,
+            AppError::CurriculumAlreadyExists => StatusCode::CONFLICT,
             AppError::MasterCourseNotFound => StatusCode::NOT_FOUND,
             AppError::MasterCourseAlreadyExists => StatusCode::CONFLICT,
             AppError::CourseNotFound => StatusCode::NOT_FOUND,
             AppError::CourseAlreadyExists => StatusCode::CONFLICT,
             AppError::CoursePoolAlreadyExists => StatusCode::CONFLICT,
             AppError::CoursePoolNotFound => StatusCode::NOT_FOUND,
+            AppError::CourseCurriculumNotFound => StatusCode::NOT_FOUND,
+            AppError::CourseCurriculumAlreadyExists => StatusCode::CONFLICT,
             AppError::CoursePreferenceAlreadyExists => StatusCode::CONFLICT,
             AppError::CoursePreferenceNotFound => StatusCode::NOT_FOUND,
             AppError::CourseAssignmentAlreadyExists => StatusCode::CONFLICT,
             AppError::CourseAssignmentNotFound => StatusCode::NOT_FOUND,
-            AppError::ProfessorCreditAlreadyExists => StatusCode::CONFLICT,
-            AppError::ProfessorCreditNotFound => StatusCode::NOT_FOUND,
+            AppError::ProfessorQuotaAlreadyExists => StatusCode::CONFLICT,
+            AppError::ProfessorQuotaNotFound => StatusCode::NOT_FOUND,
             AppError::CoursePreferenceBookmarkAlreadyExists => StatusCode::CONFLICT,
             AppError::CoursePreferenceBookmarkNotFound => StatusCode::NOT_FOUND,
             AppError::CourseFacilityAlreadyExists => StatusCode::CONFLICT,

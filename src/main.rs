@@ -23,13 +23,14 @@ use state::app_state::AppState;
 use crate::router::{
     classroom_facility_router::classroom_facility_router, classroom_router::classroom_router,
     course_assignment_router::course_assignment_router,
+    course_curriculum_router::course_curriculum_router,
     course_facility_router::course_facility_router, course_pool_router::course_pool_router,
     course_preference_bookmark_router::course_preference_bookmark_router,
     course_preference_router::course_preference_router, course_router::course_router,
-    facility_router::facility_router, major_router::major_router,
-    master_course_router::master_course_router, professor_credit_router::professor_credit_router,
-    professor_router::professor_router, semester_router::semester_router,
-    timetable_router::timetable_router, user_router::user_router,
+    curriculum_router::curriculum_router, facility_router::facility_router,
+    major_router::major_router, master_course_router::master_course_router,
+    professor_quota_router::professor_quota_router, professor_router::professor_router,
+    semester_router::semester_router, timetable_router::timetable_router, user_router::user_router,
 };
 
 #[tokio::main]
@@ -44,12 +45,14 @@ async fn main() {
         .nest("/api/professors", professor_router())
         .nest("/api/semesters", semester_router())
         .nest("/api/majors", major_router())
+        .nest("/api/curriculums", curriculum_router())
         .nest("/api/master-courses", master_course_router())
         .nest("/api/courses", course_router())
         .nest("/api/course-pools", course_pool_router())
         .nest("/api/course-preferences", course_preference_router())
         .nest("/api/course-assignments", course_assignment_router())
-        .nest("/api/professor-credits", professor_credit_router())
+        .nest("/api/course-curriculums", course_curriculum_router())
+        .nest("/api/professor-quotas", professor_quota_router())
         .nest(
             "/api/course-preference-bookmarks",
             course_preference_bookmark_router(),

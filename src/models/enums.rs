@@ -46,6 +46,21 @@ pub enum ProfessorPosition {
     Emeritus,
 }
 
+//
+// Professor Quota
+//
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, DbEnum)]
+#[ExistingTypePath = "crate::schema::sql_types::QuotaType"]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum QuotaType {
+    #[db_rename = "CREDIT"]
+    Credit,
+
+    #[db_rename = "HOUR"]
+    Hour,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, DbEnum)]
 #[ExistingTypePath = "crate::schema::sql_types::ProfessorStatus"]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -90,6 +105,21 @@ pub enum SemesterStatus {
 }
 
 //
+// Major
+//
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, DbEnum)]
+#[ExistingTypePath = "crate::schema::sql_types::MajorStatus"]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum MajorStatus {
+    #[db_rename = "ACTIVE"]
+    Active,
+
+    #[db_rename = "INACTIVE"]
+    Inactive,
+}
+
+//
 // Master Course
 //
 
@@ -102,6 +132,17 @@ pub enum CourseType {
 
     #[db_rename = "GRADUATE"]
     Graduate,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, DbEnum)]
+#[ExistingTypePath = "crate::schema::sql_types::CourseStatus"]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum CourseStatus {
+    #[db_rename = "ACTIVE"]
+    Active,
+
+    #[db_rename = "INACTIVE"]
+    Inactive,
 }
 
 //
@@ -134,4 +175,34 @@ pub enum Language {
 
     #[db_rename = "ENGLISH"]
     English,
+}
+
+//
+// Timetable
+//
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, DbEnum)]
+#[ExistingTypePath = "crate::schema::sql_types::DayOfWeek"]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum DayOfWeek {
+    #[db_rename = "MON"]
+    Mon,
+
+    #[db_rename = "TUE"]
+    Tue,
+
+    #[db_rename = "WED"]
+    Wed,
+
+    #[db_rename = "THU"]
+    Thu,
+
+    #[db_rename = "FRI"]
+    Fri,
+
+    #[db_rename = "SAT"]
+    Sat,
+
+    #[db_rename = "SUN"]
+    Sun,
 }

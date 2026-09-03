@@ -5,11 +5,54 @@ use diesel::result::QueryResult;
 
 use crate::{
     models::{
-        enums::UserRole,
+        enums::*,
         user::{NewUser, UpdateUser, User},
     },
     schema::users,
 };
+
+#[macro_export]
+macro_rules! apply_user_query_filters {
+    ($query:expr, $params:expr) => {{
+        let mut query = $query;
+
+        if let Some(user_id) = $params
+            .get("id")
+            .and_then(|value| value.parse::<i64>().ok())
+        {
+            query = query.filter(users::id.eq(user_id));
+        }
+        if let Some(email) = $params
+            .get("email")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(users::email.eq(email));
+        }
+        if let Some(username) = $params
+            .get("username")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(users::username.ilike(format!("%{}%", username)));
+        }
+        if let Some(role) = $params
+            .get("role")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(users::role.eq(UserRole::from(role)));
+        }
+        if let Some(is_super) = $params
+            .get("is_super")
+            .and_then(|value| value.parse::<bool>().ok())
+        {
+            query = query.filter(users::is_super.eq(is_super));
+        }
+
+        query
+    }};
+}
 
 pub struct UserRepository;
 
@@ -30,30 +73,7 @@ impl UserRepository {
             .order(users::id.asc())
             .into_boxed();
 
-        if let Some(user_id) = params.get("id").and_then(|value| value.parse::<i64>().ok()) {
-            query = query.filter(users::id.eq(user_id));
-        }
-        if let Some(email) = params
-            .get("email")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(users::email.eq(email));
-        }
-        if let Some(name) = params
-            .get("name")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(users::name.ilike(format!("%{}%", name)));
-        }
-        if let Some(role) = params
-            .get("role")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(users::role.eq(UserRole::from(role)));
-        }
+        query = apply_user_query_filters!(query, params);
 
         query.load(conn)
     }

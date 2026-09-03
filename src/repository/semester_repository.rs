@@ -5,11 +5,48 @@ use diesel::result::QueryResult;
 
 use crate::{
     models::{
-        enums::{SemesterStatus, SemesterType},
+        enums::*,
         semester::{NewSemester, Semester, UpdateSemester},
     },
     schema::semester,
 };
+
+#[macro_export]
+macro_rules! apply_semester_query_filters {
+    ($query:expr, $params:expr) => {{
+        let mut query = $query;
+
+        if let Some(id) = $params
+            .get("id")
+            .and_then(|value| value.parse::<i64>().ok())
+        {
+            query = query.filter(semester::id.eq(id));
+        }
+        if let Some(year) = $params
+            .get("year")
+            .and_then(|value| value.parse::<i32>().ok())
+        {
+            query = query.filter(semester::year.eq(year));
+        }
+        if let Some(semester_) = $params
+            .get("semester_")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query = query.filter(semester::semester_.eq(SemesterType::from(semester_)));
+        }
+        if let Some(semester_status) = $params
+            .get("semester_status")
+            .map(|value| value.trim())
+            .filter(|value| !value.is_empty())
+        {
+            query =
+                query.filter(semester::semester_status.eq(SemesterStatus::from(semester_status)));
+        }
+
+        query
+    }};
+}
 
 pub struct SemesterRepository;
 
@@ -30,29 +67,7 @@ impl SemesterRepository {
             .order((semester::year.desc(), semester::semester_.asc()))
             .into_boxed();
 
-        if let Some(id) = params.get("id").and_then(|value| value.parse::<i64>().ok()) {
-            query = query.filter(semester::id.eq(id));
-        }
-        if let Some(year) = params
-            .get("year")
-            .and_then(|value| value.parse::<i32>().ok())
-        {
-            query = query.filter(semester::year.eq(year));
-        }
-        if let Some(semester_) = params
-            .get("semester_")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(semester::semester_.eq(SemesterType::from(semester_)));
-        }
-        if let Some(status) = params
-            .get("status")
-            .map(|value| value.trim())
-            .filter(|value| !value.is_empty())
-        {
-            query = query.filter(semester::status.eq(SemesterStatus::from(status)));
-        }
+        query = apply_semester_query_filters!(query, params);
 
         query.load(conn)
     }
