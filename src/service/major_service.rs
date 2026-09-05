@@ -20,13 +20,18 @@ impl MajorService {
             ("major_name".into(), request.major_name.clone()),
             ("major_code".into(), request.major_code.clone()),
         ]);
-        if MajorRepository::find_all(conn, &query_params).is_ok() {
+        if !MajorRepository::find_all(conn, &query_params)
+            .unwrap_or_else(|_| Vec::new())
+            .is_empty()
+        {
             return Err(AppError::MajorAlreadyExists);
         }
 
         let new_major = NewMajor {
             major_name: request.major_name,
             major_code: request.major_code,
+
+            major_status: request.major_status
         };
 
         let major =
