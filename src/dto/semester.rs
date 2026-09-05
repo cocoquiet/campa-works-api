@@ -11,6 +11,8 @@ use crate::models::{
 pub struct CreateSemesterRequest {
     pub year: i32,
     pub semester_: SemesterType,
+
+    pub semester_status: SemesterStatus,
 }
 
 #[derive(Debug, Deserialize)]
@@ -71,8 +73,8 @@ impl Display for SemesterType {
 impl From<&str> for SemesterStatus {
     fn from(s: &str) -> Self {
         match s {
-            "OPEN" => SemesterStatus::Open,
-            "CLOSED" => SemesterStatus::Closed,
+            "ACTIVE" => SemesterStatus::Active,
+            "INACTIVE" => SemesterStatus::Inactive,
             _ => panic!("Invalid semester status"),
         }
     }
