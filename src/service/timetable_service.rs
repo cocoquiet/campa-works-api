@@ -26,21 +26,18 @@ impl TimetableService {
         ClassroomRepository::find_by_id(conn, request.classroom_id)
             .map_err(|_| AppError::ClassroomNotFound)?;
 
-        let query_params = HashMap::from([
-            (
-                "assignment_id".to_string(),
-                request.assignment_id.to_string(),
-            ),
-            ("classroom_id".to_string(), request.classroom_id.to_string()),
-            ("day_of_week".to_string(), request.day_of_week.to_string()),
-            // ToDo: Check for overlapping timetables based on start_period and end_period
-        ]);
-
-        if TimetableRepository::find_all(conn, &query_params)
-            .unwrap_or_else(|_| Vec::new())
-            .is_empty()
+        if TimetableRepository::find_overlapping_timetables(
+            conn,
+            request.classroom_id,
+            request.day_of_week,
+            request.start_time,
+            request.end_time,
+        )
+        .map_err(|_| AppError::DatabaseError)?
+        .len()
+            > 0
         {
-            return Err(AppError::TimetableAlreadyExists);
+            return Err(AppError::TimetableOverlap);
         }
 
         let new_timetable = NewTimetable {
@@ -51,13 +48,11 @@ impl TimetableService {
             end_time: request.end_time,
         };
 
-        TimetableRepository::create(conn, &new_timetable).map_err(|_| AppError::DatabaseError)?;
-
-        let timetable = TimetableRepository::find_all(conn, &query_params)
+        let timetable_id = TimetableRepository::create(conn, &new_timetable)
             .map_err(|_| AppError::DatabaseError)?
-            .into_iter()
-            .next()
-            .unwrap_or_else(|| unreachable!());
+            .id;
+        let timetable = TimetableRepository::find_by_id(conn, timetable_id)
+            .map_err(|_| AppError::DatabaseError)?;
 
         Ok(timetable.into())
     }
@@ -77,6 +72,22 @@ impl TimetableService {
             TimetableRepository::find_by_id(conn, id).map_err(|_| AppError::TimetableNotFound)?;
 
         Ok(timetable.into())
+    }
+
+    pub fn get_overlapping_timetables(
+        conn: &mut PgConnection,
+        request: CreateTimetableRequest,
+    ) -> Result<Vec<TimetableResponse>, AppError> {
+        let overlapping_timetables = TimetableRepository::find_overlapping_timetables(
+            conn,
+            request.classroom_id,
+            request.day_of_week,
+            request.start_time,
+            request.end_time,
+        )
+        .map_err(|_| AppError::DatabaseError)?;
+
+        Ok(overlapping_timetables.into_iter().map(Into::into).collect())
     }
 
     pub fn update(

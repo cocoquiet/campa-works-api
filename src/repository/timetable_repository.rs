@@ -151,6 +151,57 @@ impl TimetableRepository {
             .first(conn)
     }
 
+    pub fn find_overlapping_timetables(
+        conn: &mut PgConnection,
+        classroom_id: i64,
+        day_of_week: DayOfWeek,
+        start_time: NaiveTime,
+        end_time: NaiveTime,
+    ) -> QueryResult<
+        Vec<(
+            Timetable,
+            CourseAssignment,
+            Course,
+            MasterCourse,
+            Professor,
+            User,
+            Semester,
+            Classroom,
+        )>,
+    > {
+        let query = timetable::table
+            .inner_join(
+                course_assignment::table
+                    .inner_join(course::table.inner_join(master_course::table))
+                    .inner_join(
+                        professor::table
+                            .inner_join(users::table)
+                            .inner_join(semester::table),
+                    ),
+            )
+            .inner_join(classroom::table)
+            .filter(timetable::classroom_id.eq(classroom_id))
+            .filter(timetable::day_of_week.eq(day_of_week))
+            .filter(
+                timetable::start_time
+                    .lt(end_time)
+                    .or(timetable::end_time.gt(start_time)),
+            )
+            .select((
+                Timetable::as_select(),
+                CourseAssignment::as_select(),
+                Course::as_select(),
+                MasterCourse::as_select(),
+                Professor::as_select(),
+                User::as_select(),
+                Semester::as_select(),
+                Classroom::as_select(),
+            ))
+            .into_boxed();
+
+        query.load(conn)
+    }
+
     pub fn update(
         conn: &mut PgConnection,
         timetable_id: i64,
