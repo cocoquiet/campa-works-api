@@ -3,13 +3,16 @@ use std::collections::HashMap;
 use diesel::PgConnection;
 
 use crate::{
-    dto::course_curriculum::{CourseCurriculumResponse, CreateCourseCurriculumRequest},
+    dto::{
+        course_curriculum::{self, CourseCurriculumResponse, CreateCourseCurriculumRequest},
+        curriculum, semester,
+    },
     error::app_error::AppError,
     models::course_curriculum::NewCourseCurriculum,
     repository::{
         course_curriculum_repository::CourseCurriculumRepository,
         curriculum_repository::CurriculumRepository,
-        master_course_repository::MasterCourseRepository,
+        master_course_repository::MasterCourseRepository, semester_repository::SemesterRepository,
     },
 };
 
@@ -59,6 +62,52 @@ impl CourseCurriculumService {
             .unwrap_or_else(|| unreachable!());
 
         Ok(course_curriculum.into())
+    }
+
+    pub fn create_all_in_new_semester(
+        conn: &mut PgConnection,
+        curriculum_id: i64,
+    ) -> Result<Vec<CourseCurriculumResponse>, AppError> {
+        let curriculum = CurriculumRepository::find_by_id(conn, curriculum_id)
+            .map_err(|_| AppError::CurriculumNotFound)?;
+        let semester = SemesterRepository::find_by_id(conn, curriculum.1.id)
+            .map_err(|_| AppError::SemesterNotFound)?;
+
+        let last_semester_query_params =
+            HashMap::from([("year".to_string(), (semester.year - 1).to_string())]);
+        let last_semster = SemesterRepository::find_all(conn, &last_semester_query_params)
+            .map_err(|_| AppError::SemesterNotFound)?
+            .into_iter()
+            .next()
+            .unwrap_or_else(|| unreachable!());
+
+        let last_curriculum_query_params =
+            HashMap::from([("semester_id".to_string(), last_semster.id.to_string())]);
+        let last_curriculum = CurriculumRepository::find_all(conn, &last_curriculum_query_params)
+            .map_err(|_| AppError::CurriculumNotFound)?
+            .into_iter()
+            .next()
+            .unwrap_or_else(|| unreachable!());
+
+        for (_, master_course, _, _, _) in
+            CourseCurriculumRepository::find_by_curriculum_id(conn, last_curriculum.0.id)
+                .map_err(|_| AppError::DatabaseError)?
+        {
+            let new_course_curriculum = NewCourseCurriculum {
+                master_course_id: master_course.id,
+                curriculum_id: curriculum.0.id,
+            };
+            CourseCurriculumRepository::create(conn, &new_course_curriculum)
+                .map_err(|_| AppError::DatabaseError)?;
+        }
+
+        let course_curriculums = CourseCurriculumRepository::find_all(
+            conn,
+            &HashMap::from([("curriculum_id".to_string(), curriculum.0.id.to_string())]),
+        )
+        .map_err(|_| AppError::DatabaseError)?;
+
+        Ok(course_curriculums.into_iter().map(|cc| cc.into()).collect())
     }
 
     pub fn get_all(

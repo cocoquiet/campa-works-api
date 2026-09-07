@@ -72,10 +72,10 @@ impl CurriculumService {
             )?;
         }
 
-        let curriculums = CurriculumRepository::find_all(conn, &HashMap::from([(
-            "semester_id".to_string(),
-            semester_id.to_string(),
-        )]))
+        let curriculums = CurriculumRepository::find_all(
+            conn,
+            &HashMap::from([("semester_id".to_string(), semester_id.to_string())]),
+        )
         .map_err(|_| AppError::DatabaseError)?;
 
         Ok(curriculums.into_iter().map(Into::into).collect())
