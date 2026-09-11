@@ -27,6 +27,10 @@ impl CurriculumService {
         let query_params = HashMap::from([
             ("semester_id".to_string(), request.semester_id.to_string()),
             ("major_id".to_string(), request.major_id.to_string()),
+            (
+                "curriculum_grade".to_string(),
+                request.curriculum_grade.to_string(),
+            ),
         ]);
 
         if !CurriculumRepository::find_all(conn, &query_params)
@@ -39,6 +43,7 @@ impl CurriculumService {
         let new_curriculum = NewCurriculum {
             semester_id: request.semester_id,
             major_id: request.major_id,
+            curriculum_grade: request.curriculum_grade,
         };
 
         CurriculumRepository::create(conn, &new_curriculum).map_err(|_| AppError::DatabaseError)?;
@@ -68,6 +73,8 @@ impl CurriculumService {
                 CreateCurriculumRequest {
                     semester_id,
                     major_id: major.id,
+                    // curriculum_grade: major.curriculum_grade,
+                    curriculum_grade: 1, // ToDo: Change this to major.curriculum_grade when the curriculum_grade is added to the Major model
                 },
             )?;
         }

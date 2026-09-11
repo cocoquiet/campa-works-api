@@ -28,6 +28,13 @@ macro_rules! apply_curriculum_query_filters {
 
         query = crate::apply_major_query_filters!(query, $params);
 
+        if let Some(curriculum_grade) = $params
+            .get("curriculum_grade")
+            .and_then(|value| value.parse::<i32>().ok())
+        {
+            query = query.filter(curriculum::curriculum_grade.eq(curriculum_grade));
+        }
+
         query
     }};
 }

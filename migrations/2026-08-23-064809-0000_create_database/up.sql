@@ -196,9 +196,10 @@ CREATE TABLE curriculum (
 
     semester_id BIGINT NOT NULL,
     major_id BIGINT NOT NULL,
+    curriculum_grade INTEGER NOT NULL,
 
-    CONSTRAINT curriculum_semester_major_unique
-        UNIQUE (semester_id, major_id),
+    CONSTRAINT curriculum_semester_major_curriculum_grade_unique
+        UNIQUE (semester_id, major_id, curriculum_grade),
 
     CONSTRAINT curriculum_semester_id_fkey
         FOREIGN KEY (semester_id)
