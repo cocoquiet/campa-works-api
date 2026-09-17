@@ -58,11 +58,8 @@ impl CoursePreferenceRepository {
         params: &HashMap<String, String>,
     ) -> QueryResult<Vec<(CoursePreference, Professor, User, Semester, MasterCourse)>> {
         let mut query = course_preference::table
-            .inner_join(
-                professor::table
-                    .inner_join(users::table)
-                    .inner_join(semester::table),
-            )
+            .inner_join(professor::table.inner_join(users::table))
+            .inner_join(semester::table)
             .inner_join(master_course::table)
             .select((
                 CoursePreference::as_select(),
@@ -83,11 +80,8 @@ impl CoursePreferenceRepository {
         course_preference_id: i64,
     ) -> QueryResult<(CoursePreference, Professor, User, Semester, MasterCourse)> {
         course_preference::table
-            .inner_join(
-                professor::table
-                    .inner_join(users::table)
-                    .inner_join(semester::table),
-            )
+            .inner_join(professor::table.inner_join(users::table))
+            .inner_join(semester::table)
             .inner_join(master_course::table)
             .filter(course_preference::id.eq(course_preference_id))
             .select((
