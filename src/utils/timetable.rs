@@ -4,6 +4,10 @@ use diesel::PgConnection;
 
 use crate::{
     error::app_error::AppError,
+    models::{
+        course::Course, course_curriculum::CourseCurriculum, curriculum::Curriculum, major::Major,
+        master_course::MasterCourse, professor::Professor, semester::Semester, user::User,
+    },
     repository::{
         course_curriculum_repository::CourseCurriculumRepository,
         course_pool_repository::CoursePoolRepository,
@@ -14,19 +18,17 @@ use crate::{
 
 pub fn init_hungarian_matrix(
     conn: &mut PgConnection,
+    courses: &Vec<(
+        Course,
+        CourseCurriculum,
+        MasterCourse,
+        Curriculum,
+        Semester,
+        Major,
+    )>,
+    professors: &Vec<(Professor, User, Semester)>,
     semester_id: i64,
 ) -> Result<Vec<Vec<i32>>, AppError> {
-    let courses = CourseRepository::find_all(
-        conn,
-        &HashMap::from([("semester_id".to_string(), semester_id.to_string())]),
-    )
-    .map_err(|_| AppError::DatabaseError)?;
-    let professors = ProfessorRepository::find_all(
-        conn,
-        &HashMap::from([("professor_status".to_string(), "ACTIVE".to_string())]),
-    )
-    .map_err(|_| AppError::DatabaseError)?;
-
     let mut hungarian_matrix = vec![vec![0; courses.len()]; professors.len()];
     for (row_idx, (professor, _, _)) in professors.iter().enumerate() {
         let professor_course_preferences = CoursePreferenceRepository::find_all(

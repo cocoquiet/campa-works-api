@@ -58,8 +58,19 @@ impl CourseAssignmentService {
         conn: &mut PgConnection,
         semester_id: i64,
     ) -> Result<Vec<CourseAssignmentResponse>, AppError> {
+        let courses = CourseRepository::find_all(
+            conn,
+            &HashMap::from([("semester_id".to_string(), semester_id.to_string())]),
+        )
+        .map_err(|_| AppError::DatabaseError)?;
+        let professors = ProfessorRepository::find_all(
+            conn,
+            &HashMap::from([("professor_status".to_string(), "ACTIVE".to_string())]),
+        )
+        .map_err(|_| AppError::DatabaseError)?;
+
         // Init hungarian matrix(rows: professors, columns: courses, values: course_preference_score)
-        let mut hungarian_matrix = init_hungarian_matrix(conn, semester_id);
+        let mut hungarian_matrix = init_hungarian_matrix(conn, &courses, &professors, semester_id);
 
         // ToDo: Implement Round-Based Hungarian algorithm
 
