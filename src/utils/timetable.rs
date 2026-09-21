@@ -12,7 +12,6 @@ use crate::{
         course_curriculum_repository::CourseCurriculumRepository,
         course_pool_repository::CoursePoolRepository,
         course_preference_repository::CoursePreferenceRepository,
-        course_repository::CourseRepository, professor_repository::ProfessorRepository,
     },
 };
 
@@ -31,12 +30,6 @@ pub fn init_hungarian_matrix(
 ) -> Result<Vec<Vec<i32>>, AppError> {
     let mut hungarian_matrix = vec![vec![0; courses.len()]; professors.len()];
     for (row_idx, (professor, _, _)) in professors.iter().enumerate() {
-        let professor_course_preferences = CoursePreferenceRepository::find_all(
-            conn,
-            &HashMap::from([("professor_id".to_string(), professor.id.to_string())]),
-        )
-        .map_err(|_| AppError::DatabaseError)?;
-
         for (col_idx, (course, _, _, _, _, _)) in courses.iter().enumerate() {
             let master_course_id =
                 CourseCurriculumRepository::find_by_id(conn, course.course_curriculum_id)
