@@ -5,10 +5,12 @@ use diesel::PgConnection;
 use crate::{
     error::app_error::AppError,
     models::{
-        course::Course, course_curriculum::CourseCurriculum, curriculum::Curriculum, major::Major,
+        course::Course, course_assignment::NewCourseAssignment,
+        course_curriculum::CourseCurriculum, curriculum::Curriculum, major::Major,
         master_course::MasterCourse, professor::Professor, semester::Semester, user::User,
     },
     repository::{
+        course_assignment_repository::CourseAssignmentRepository,
         course_curriculum_repository::CourseCurriculumRepository,
         course_pool_repository::CoursePoolRepository,
         course_preference_repository::CoursePreferenceRepository,
@@ -72,4 +74,88 @@ pub fn init_hungarian_matrix(
     }
 
     Ok(hungarian_matrix)
+}
+
+pub fn execute_round(
+    conn: &mut PgConnection,
+    courses: &mut Vec<(
+        Course,
+        CourseCurriculum,
+        MasterCourse,
+        Curriculum,
+        Semester,
+        Major,
+    )>,
+    professors: &mut Vec<(Professor, User, Semester)>,
+    hungarian_matrix: &mut Vec<Vec<i32>>,
+) -> Result<bool, AppError> {
+    let mut is_changed = false;
+
+    let courses_len = courses.len();
+    let professors_len = professors.len();
+
+    for row_idx in 0..professors_len {
+        let min_value = *hungarian_matrix[row_idx].iter().min().unwrap();
+        for row_idx in 0..professors_len {
+            for col_idx in 0..courses_len {
+                hungarian_matrix[row_idx][col_idx] -= min_value;
+            }
+        }
+    }
+    for col_idx in 0..courses_len {
+        let min_value = hungarian_matrix
+            .iter()
+            .map(|row| row[col_idx])
+            .min()
+            .unwrap();
+        for row_idx in 0..professors_len {
+            hungarian_matrix[row_idx][col_idx] -= min_value;
+        }
+    }
+    for row_idx in 0..professors_len {
+        for col_idx in 0..courses_len {
+            hungarian_matrix[row_idx][col_idx] = match hungarian_matrix[row_idx][col_idx] {
+                -1 => 0,
+                _ => hungarian_matrix[row_idx][col_idx],
+            }
+        }
+    }
+
+    let mut col_idx = 0;
+    while col_idx < courses.len() {
+        let mut check_zero = vec![];
+        hungarian_matrix.iter().for_each(|row| {
+            for row_idx in 0..professors_len {
+                if row[col_idx] == 0 {
+                    check_zero.push(row_idx);
+                }
+            }
+        });
+        if check_zero.len() == 1 {
+            let row_idx = check_zero[0];
+
+            CourseAssignmentRepository::create(
+                conn,
+                &NewCourseAssignment {
+                    course_id: courses[col_idx].0.id,
+                    professor_id: professors[row_idx].0.id,
+                },
+            )
+            .map_err(|_| AppError::DatabaseError)?;
+
+            // ToDo: Implement professor_quota check and remove professor from the list if the quota is full
+
+            courses.remove(col_idx);
+            hungarian_matrix.remove(row_idx);
+            for row in hungarian_matrix.iter_mut() {
+                row.remove(col_idx);
+            }
+
+            is_changed = true;
+        } else {
+            col_idx += 1;
+        }
+    }
+
+    Ok(is_changed)
 }
