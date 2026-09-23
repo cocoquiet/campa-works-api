@@ -173,7 +173,7 @@ fn execute_shallow(
     Ok(is_changed)
 }
 
-pub fn execute_round(
+fn execute_deep(
     conn: &mut PgConnection,
     courses: &mut Vec<(
         Course,
@@ -188,14 +188,39 @@ pub fn execute_round(
 ) -> Result<bool, AppError> {
     let mut is_changed = false;
 
+    // ToDo: Implement deep execution logic
+
+    Ok(is_changed)
+}
+
+pub fn execute_round(
+    conn: &mut PgConnection,
+    courses: &mut Vec<(
+        Course,
+        CourseCurriculum,
+        MasterCourse,
+        Curriculum,
+        Semester,
+        Major,
+    )>,
+    professors: &mut Vec<(Professor, User, Semester)>,
+    hungarian_matrix: &mut Vec<Vec<i32>>,
+) -> Result<(), AppError> {
     let courses_len = courses.len();
     let professors_len = professors.len();
 
     minimize_hungarian_matrix(hungarian_matrix, courses_len, professors_len);
 
-    while let Ok(true) = execute_shallow(conn, courses, professors, hungarian_matrix) {
-        continue;
+    loop {
+        while let Ok(true) = execute_shallow(conn, courses, professors, hungarian_matrix) {
+            continue;
+        }
+        if let Ok(true) = execute_deep(conn, courses, professors, hungarian_matrix) {
+            continue;
+        } else {
+            break;
+        }
     }
 
-    Ok(is_changed)
+    Ok(())
 }
