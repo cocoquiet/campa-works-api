@@ -76,24 +76,11 @@ pub fn init_hungarian_matrix(
     Ok(hungarian_matrix)
 }
 
-pub fn execute_round(
-    conn: &mut PgConnection,
-    courses: &mut Vec<(
-        Course,
-        CourseCurriculum,
-        MasterCourse,
-        Curriculum,
-        Semester,
-        Major,
-    )>,
-    professors: &mut Vec<(Professor, User, Semester)>,
+pub fn minimize_hungarian_matrix(
     hungarian_matrix: &mut Vec<Vec<i32>>,
-) -> Result<bool, AppError> {
-    let mut is_changed = false;
-
-    let courses_len = courses.len();
-    let professors_len = professors.len();
-
+    courses_len: usize,
+    professors_len: usize,
+) {
     for row_idx in 0..professors_len {
         let min_value = *hungarian_matrix[row_idx].iter().min().unwrap();
         for row_idx in 0..professors_len {
@@ -120,6 +107,27 @@ pub fn execute_round(
             }
         }
     }
+}
+
+pub fn execute_round(
+    conn: &mut PgConnection,
+    courses: &mut Vec<(
+        Course,
+        CourseCurriculum,
+        MasterCourse,
+        Curriculum,
+        Semester,
+        Major,
+    )>,
+    professors: &mut Vec<(Professor, User, Semester)>,
+    hungarian_matrix: &mut Vec<Vec<i32>>,
+) -> Result<bool, AppError> {
+    let mut is_changed = false;
+
+    let courses_len = courses.len();
+    let professors_len = professors.len();
+
+    minimize_hungarian_matrix(hungarian_matrix, courses_len, professors_len);
 
     let mut col_idx = 0;
     while col_idx < courses.len() {
