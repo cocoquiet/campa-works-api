@@ -182,6 +182,7 @@ fn execute_shallow(
     )>,
     professors: &mut Vec<(Professor, User, Semester)>,
     hungarian_matrix: &mut Vec<Vec<i32>>,
+    semester_id: i64,
 ) -> Result<bool, AppError> {
     let mut is_changed = false;
 
@@ -200,10 +201,11 @@ fn execute_shallow(
             )
             .map_err(|_| AppError::DatabaseError)?;
 
-            // ToDo: Implement professor_quota check and remove professor from the list if the quota is full
-
+            if get_remaining_professor_quota(conn, professors[row_idx].0.id, semester_id)? <= 0 {
+                professors.remove(row_idx);
+                hungarian_matrix.remove(row_idx);
+            }
             courses.remove(col_idx);
-            hungarian_matrix.remove(row_idx);
             for row in hungarian_matrix.iter_mut() {
                 row.remove(col_idx);
             }
@@ -249,6 +251,7 @@ pub fn execute_round(
     )>,
     professors: &mut Vec<(Professor, User, Semester)>,
     hungarian_matrix: &mut Vec<Vec<i32>>,
+    semester_id: i64,
 ) -> Result<(), AppError> {
     let courses_len = courses.len();
     let professors_len = professors.len();
@@ -256,7 +259,9 @@ pub fn execute_round(
     minimize_hungarian_matrix(hungarian_matrix, courses_len, professors_len);
 
     loop {
-        while let Ok(true) = execute_shallow(conn, courses, professors, hungarian_matrix) {
+        while let Ok(true) =
+            execute_shallow(conn, courses, professors, hungarian_matrix, semester_id)
+        {
             continue;
         }
         if let Ok(true) = execute_deep(conn, courses, professors, hungarian_matrix) {
