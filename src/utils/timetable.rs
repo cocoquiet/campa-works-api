@@ -76,7 +76,7 @@ pub fn init_hungarian_matrix(
     Ok(hungarian_matrix)
 }
 
-pub fn minimize_hungarian_matrix(
+fn minimize_hungarian_matrix(
     hungarian_matrix: &mut Vec<Vec<i32>>,
     courses_len: usize,
     professors_len: usize,
