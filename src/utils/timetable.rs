@@ -5,15 +5,24 @@ use diesel::PgConnection;
 use crate::{
     error::app_error::AppError,
     models::{
-        course::Course, course_assignment::NewCourseAssignment,
-        course_curriculum::CourseCurriculum, curriculum::Curriculum, major::Major,
-        master_course::MasterCourse, professor::Professor, semester::Semester, user::User,
+        course::Course,
+        course_assignment::NewCourseAssignment,
+        course_curriculum::CourseCurriculum,
+        curriculum::Curriculum,
+        enums::QuotaType::{self, Credit, Hour},
+        major::Major,
+        master_course::MasterCourse,
+        professor::Professor,
+        semester::Semester,
+        user::User,
     },
     repository::{
         course_assignment_repository::CourseAssignmentRepository,
         course_curriculum_repository::CourseCurriculumRepository,
         course_pool_repository::CoursePoolRepository,
         course_preference_repository::CoursePreferenceRepository,
+        professor_quota_repository::ProfessorQuotaRepository,
+        professor_repository::ProfessorRepository,
     },
 };
 
@@ -124,6 +133,41 @@ fn get_zero_idx_vec(
     });
 
     zero_idx_vec
+}
+
+fn get_remaining_professor_quota(
+    conn: &mut PgConnection,
+    professor_id: i64,
+    semester_id: i64,
+) -> Result<i32, AppError> {
+    let professor_quota = ProfessorQuotaRepository::find_by_professor_id_and_semester_id(
+        conn,
+        professor_id,
+        semester_id,
+    )
+    .map_err(|_| AppError::DatabaseError)?;
+
+    let quota_type = professor_quota.0.quota_type;
+
+    Ok((professor_quota.0.quota_value
+        - CourseAssignmentRepository::find_all(
+            conn,
+            &HashMap::from([
+                ("professor_id".to_string(), professor_id.to_string()),
+                ("semester_id".to_string(), semester_id.to_string()),
+            ]),
+        )
+        .map_err(|_| AppError::DatabaseError)?
+        .iter()
+        .map(|(_, course, _, _, _, _, _, _, _)| match quota_type {
+            QuotaType::Credit => course.credit,
+            QuotaType::Hour => course.lecture + course.practice,
+        })
+        .sum::<i32>())
+        * match quota_type {
+            QuotaType::Credit => 1,
+            QuotaType::Hour => 3,
+        })
 }
 
 fn execute_shallow(
