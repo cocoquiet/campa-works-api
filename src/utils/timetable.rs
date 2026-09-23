@@ -109,7 +109,24 @@ pub fn minimize_hungarian_matrix(
     }
 }
 
-pub fn execute_round(
+fn get_zero_idx_vec(
+    hungarian_matrix: &Vec<Vec<i32>>,
+    professors_len: usize,
+    col_idx: usize,
+) -> Vec<usize> {
+    let mut zero_idx_vec = vec![];
+    hungarian_matrix.iter().for_each(|row| {
+        for row_idx in 0..professors_len {
+            if row[col_idx] == 0 {
+                zero_idx_vec.push(row_idx);
+            }
+        }
+    });
+
+    zero_idx_vec
+}
+
+fn execute_shallow(
     conn: &mut PgConnection,
     courses: &mut Vec<(
         Course,
@@ -124,23 +141,11 @@ pub fn execute_round(
 ) -> Result<bool, AppError> {
     let mut is_changed = false;
 
-    let courses_len = courses.len();
-    let professors_len = professors.len();
-
-    minimize_hungarian_matrix(hungarian_matrix, courses_len, professors_len);
-
     let mut col_idx = 0;
     while col_idx < courses.len() {
-        let mut check_zero = vec![];
-        hungarian_matrix.iter().for_each(|row| {
-            for row_idx in 0..professors_len {
-                if row[col_idx] == 0 {
-                    check_zero.push(row_idx);
-                }
-            }
-        });
-        if check_zero.len() == 1 {
-            let row_idx = check_zero[0];
+        let zero_idx_vec = get_zero_idx_vec(hungarian_matrix, professors.len(), col_idx);
+        if zero_idx_vec.len() == 1 {
+            let row_idx = zero_idx_vec[0];
 
             CourseAssignmentRepository::create(
                 conn,
@@ -163,6 +168,33 @@ pub fn execute_round(
         } else {
             col_idx += 1;
         }
+    }
+
+    Ok(is_changed)
+}
+
+pub fn execute_round(
+    conn: &mut PgConnection,
+    courses: &mut Vec<(
+        Course,
+        CourseCurriculum,
+        MasterCourse,
+        Curriculum,
+        Semester,
+        Major,
+    )>,
+    professors: &mut Vec<(Professor, User, Semester)>,
+    hungarian_matrix: &mut Vec<Vec<i32>>,
+) -> Result<bool, AppError> {
+    let mut is_changed = false;
+
+    let courses_len = courses.len();
+    let professors_len = professors.len();
+
+    minimize_hungarian_matrix(hungarian_matrix, courses_len, professors_len);
+
+    while let Ok(true) = execute_shallow(conn, courses, professors, hungarian_matrix) {
+        continue;
     }
 
     Ok(is_changed)
